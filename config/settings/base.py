@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "products",
     "orders",
     "payment",
+    "sanmar_integration",
+    "alphabroder_integration",
 ]
 
 MIDDLEWARE = [
@@ -198,6 +200,19 @@ PAYMENT_CANCEL_URL = config("PAYMENT_CANCEL_URL")
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = config("REDIS_BACKEND")
 
+# Sanmar
+SANMAR_USER = config("SANMAR_USER")
+SANMAR_USER_PASSWORD = config("SANMAR_USER_PASSWORD")
+SANMAR_FTP_HOST = config("SANMAR_FTP_HOST")
+SANMAR_FTP_USER = config("SANMAR_FTP_USER")
+SANMAR_FTP_PASSWORD = config("SANMAR_FTP_PASSWORD")
+
+# AlphaBroder
+AB_USER = config("AB_USER")
+AB_USER_PASSWORD = config("AB_USER_PASSWORD")
+AB_FTP_HOST = config("AB_FTP_HOST")
+AB_FTP_USER = config("AB_FTP_USER")
+AB_FTP_PASSWORD = config("AB_FTP_PASSWORD")
 
 # DRF Spectacular
 SPECTACULAR_SETTINGS = {
