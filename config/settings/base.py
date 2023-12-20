@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "products",
     "orders",
     "payment",
-    "sanmar_integration",
+    # "sanmar_integration",
     "alphabroder_integration",
 ]
 

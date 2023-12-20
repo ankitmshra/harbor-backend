@@ -43,6 +43,9 @@ urlpatterns = [
     ),
     path("password/change/", PasswordChangeView.as_view(), name="rest_password_change"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),
+
+    # Include the Process_alp_inventory view
+    path("api/alp/", include("alphabroder_integration.urls", namespace="alphabroder_integration")),
 ]
 
 # Media Assets

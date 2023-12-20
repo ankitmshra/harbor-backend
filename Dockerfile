@@ -1,4 +1,4 @@
-FROM python:3.10.2-slim-bullseye
+FROM python:3.10.13-bookworm
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK 1
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,7 +9,9 @@ WORKDIR /code
 COPY ./requirements.txt .
 
 RUN apt-get update -y && \
-    apt-get install -y netcat && \
+    apt-get install -y netcat-traditional && \
+    apt-get install -y postgresql-client && \
+    apt-get install -y libpq-dev && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
