@@ -9,7 +9,6 @@ done
 echo 'PostgreSQL started'
 
 echo 'Running migrations...'
-python manage.py makemigrations
 python manage.py migrate
 
 echo 'Collecting static files...'

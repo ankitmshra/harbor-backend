@@ -13,6 +13,7 @@ RUN apt-get update -y && \
     apt-get install -y postgresql-client && \
     apt-get install -y libpq-dev && \
     pip install --upgrade pip && \
+    pip install python-decouple && \
     pip install -r requirements.txt
 
 COPY ./entrypoint.sh .
