@@ -305,12 +305,12 @@ class Process_alp_inventory(viewsets.ModelViewSet):
     def handle(self):
         """Handle GET requests to start downloading, processing,
           and updating the model."""
-        #self.clean_directory(os.path.join('files', 'alpb'))
-        #self.prepare_products()
+        self.clean_directory(os.path.join('files', 'alpb'))
+        self.prepare_products()
         self.update_products(self.product_file)
-        #self.prepare_inventory()
+        self.prepare_inventory()
         self.update_inventory(self.inventory_file)
-        #self.prepare_pricing()
+        self.prepare_pricing()
         self.update_pricing(self.price_file)
         self.debug("Finished updating products and inventory and Pricing.")
 
