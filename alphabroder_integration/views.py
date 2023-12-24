@@ -347,13 +347,12 @@ class StyleListView(ListAPIView):
     def get_queryset(self):
         category_param = self.request.query_params.get('category', None)
 
-        # If category is provided, filter styles by category
         if category_param:
-            try:
-                # Assuming category is case-insensitive
-                styles = Style.objects.filter(category__category__iexact=category_param)
-            except Category.DoesNotExist:
+            if not Category.objects.filter(category__iexact=category_param).exists():
                 raise Http404("Category does not exist")
+
+            # Filter styles by category
+            styles = Style.objects.filter(category__category__iexact=category_param)
         else:
             styles = Style.objects.all()
 
