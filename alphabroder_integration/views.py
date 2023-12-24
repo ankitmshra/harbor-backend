@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -340,9 +341,35 @@ class UpdateDataView(APIView):
         
 
 class StyleListView(ListAPIView):
-    queryset = Style.objects.all()
     serializer_class = AlphaBroderStyleSerializer
     pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        category_param = self.request.query_params.get('category', None)
+
+        # If category is provided, filter styles by category
+        if category_param:
+            try:
+                # Assuming category is case-insensitive
+                styles = Style.objects.filter(category__category__iexact=category_param)
+            except Category.DoesNotExist:
+                raise Http404("Category does not exist")
+        else:
+            styles = Style.objects.all()
+
+        return styles
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        # Paginate the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class CategoryListView(ListAPIView):
