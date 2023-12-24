@@ -37,6 +37,9 @@ class Process_alp_inventory(viewsets.ModelViewSet):
     inventory_file = 'inventory-v5-alp.txt'
     price_file = 'AllDBInfoALP_PRC_RZ99.txt'
 
+    # image url
+    image_url = 'https://www.alphabroder.com/media/hires/'
+
     def __init__(self, download=True, debug=True, suffix=None,
                  basename=None, detail=None):
         """Initialize inventory by parsing provided inventory
@@ -172,9 +175,9 @@ class Process_alp_inventory(viewsets.ModelViewSet):
                     'size': row['Size'],
                     'case_qty': row['Case Qty'],
                     'weight': row['Weight'],
-                    'front_image': row['Front of Image Name'],
-                    'back_image': row['Back of Image Name'],
-                    'side_image': row['Side of Image Name'],
+                    'front_image': row['Front Image Hi Res URL'].replace(self.image_url, ''),
+                    'back_image': row['Back Image Hi Res URL'].replace(self.image_url, ''),
+                    'side_image': row['Side Image Hi Res URL'].replace(self.image_url, ''),
                     'gtin': row['Gtin'],
                     'launch_date': row['Launch Date'],
                     'pms_color': row['PMS Color'],
