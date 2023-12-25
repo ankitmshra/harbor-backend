@@ -11,10 +11,11 @@ class AlphaBroderCategorySerializer(serializers.ModelSerializer):
 
 class AlphaBroderStyleSerializer(serializers.ModelSerializer):
     front_image = serializers.SerializerMethodField()
+    price_range = serializers.SerializerMethodField()
 
     class Meta:
         model = Style
-        fields = ['style_number', 'short_description', 'category', 'full_feature_description', 'front_image']
+        fields = ['style_number', 'short_description', 'category', 'full_feature_description', 'front_image', 'price_range']
 
     def get_front_image(self, obj):
         # Get the first product related to the style
@@ -22,7 +23,16 @@ class AlphaBroderStyleSerializer(serializers.ModelSerializer):
         if product:
             return product.front_image
         return None
+    
+    def get_price_range(self, obj):
+        # Get all products related to the style
+        products = Products.objects.filter(style_number=obj)
 
+        # Calculate min and max prices
+        min_price = min(products, key=lambda x: x.price.price_per_piece).price.price_per_piece
+        max_price = max(products, key=lambda x: x.price.price_per_piece).price.price_per_piece
+
+        return {'min_price': min_price, 'max_price': max_price}
 
 class AlphaBroderProductsSerializer(serializers.ModelSerializer):
     class Meta:
