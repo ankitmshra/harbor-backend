@@ -29,8 +29,8 @@ class AlphaBroderStyleSerializer(serializers.ModelSerializer):
         products = Products.objects.filter(style_number=obj)
 
         # Calculate min and max prices
-        min_price = min(products, key=lambda x: x.price.price_per_piece).price.price_per_piece
-        max_price = max(products, key=lambda x: x.price.price_per_piece).price.price_per_piece
+        min_price = min(products, key=lambda x: x.price.retail_price).price.retail_price
+        max_price = max(products, key=lambda x: x.price.retail_price).price.retail_price
 
         return {'min_price': min_price, 'max_price': max_price}
 
