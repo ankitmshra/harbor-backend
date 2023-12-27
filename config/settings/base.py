@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "payment",
     # "sanmar_integration",
     "alphabroder_integration",
+    # "authorizenet_intg",
 ]
 
 MIDDLEWARE = [

@@ -73,4 +73,5 @@ wcwidth==0.2.5
 wrapt==1.14.1
 pre-commit==3.4.0
 pandas==1.3.5
-
+authorizenet==1.1.4
+easypost==9.0.1
