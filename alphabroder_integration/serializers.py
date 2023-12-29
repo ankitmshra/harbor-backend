@@ -62,13 +62,20 @@ class InventorySerializer(serializers.ModelSerializer):
 class ProductsSerializer(serializers.ModelSerializer):
     inventory = InventorySerializer(read_only=True)
     price = PriceSerializer(read_only=False)  # Change read_only to False
+    seller = serializers.SerializerMethodField()
 
     class Meta:
         model = Products
-        fields = ['is_new', 'item_number', 'style_number', 'color_name', 'color_group_code', 'color_code', 'hex_code',
-                  'size_group', 'size_code', 'size', 'case_qty', 'weight', 'front_image', 'back_image', 'side_image',
-                  'gtin', 'launch_date', 'pms_color', 'size_sort_order', 'mktg_color_number', 'mktg_color_name',
-                  'mktg_color_hex_code', 'created_at', 'updated_at', 'inventory', 'price']
+        fields = [
+            'is_new', 'item_number', 'style_number', 'color_name', 'color_group_code', 'color_code', 'hex_code',
+            'size_group', 'size_code', 'size', 'case_qty', 'weight', 'front_image', 'back_image', 'side_image',
+            'gtin', 'launch_date', 'pms_color', 'size_sort_order', 'mktg_color_number', 'mktg_color_name',
+            'mktg_color_hex_code', 'created_at', 'updated_at', 'inventory', 'price', 'seller'
+        ]
+
+    def get_seller(self, obj):
+        # You can customize this method to return the seller based on your logic
+        return 'alpb'
 
 
 class AlphaBroderStyleWithProductsSerializer(serializers.ModelSerializer):
