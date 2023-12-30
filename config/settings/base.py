@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # "sanmar_integration",
     "alphabroder_integration",
     # "authorizenet_intg",
+    "shipping",
 ]
 
 MIDDLEWARE = [
@@ -168,11 +169,11 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST = "smtpout.secureserver.net"
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = config("EMAIL_USER")
-EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'jordan@tonserve.com'
+EMAIL_HOST_PASSWORD = 'Banty759018'
 
 # Phone number field
 PHONENUMBER_DEFAULT_REGION = "ET"
@@ -235,3 +236,7 @@ CACHES = {
 CACHE_MIDDLEWARE_ALIAS = "default"
 CACHE_MIDDLEWARE_SECONDS = 3600
 CACHE_MIDDLEWARE_KEY_PREFIX = ""
+
+# Easypost
+EASYPOST_API_KEY = config('EASYPOST_API_KEY')
+EASYPOST_WH_SECRET=config('EASYPOST_WH_SECRET')

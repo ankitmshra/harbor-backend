@@ -36,15 +36,17 @@ class UserRegisterationAPIView(RegisterView):
     serializer_class = UserRegistrationSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        # Store the request data in a variable
+        request_data = request.data
+        serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
         response_data = ""
 
-        email = request.data.get("email", None)
-        phone_number = request.data.get("phone_number", None)
+        email = request_data.get("email", None)
+        phone_number = request_data.get("phone_number", None)
 
         if email and phone_number:
             res = SendOrResendSMSAPIView.as_view()(request._request, *args, **kwargs)
