@@ -1,15 +1,11 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from django.urls import path
+from .views import ProductsListView, CategoryListView, VerboseProductsView
 
-from products.views import ProductCategoryViewSet, ProductViewSet
-
-app_name = "products"
-
-router = DefaultRouter()
-router.register(r"categories", ProductCategoryViewSet)
-router.register(r"", ProductViewSet)
-
+app_name = 'alphabroder_integration'
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path('', ProductsListView.as_view(), name='products-list'),
+    path('categories/', CategoryListView.as_view(), name='categories-list'),
+    path('<str:product_number>/', VerboseProductsView.as_view(), name='product-variations'),
+    # other url patterns...
 ]

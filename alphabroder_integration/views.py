@@ -6,26 +6,23 @@ import shutil
 from decimal import Decimal
 
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
+from django.contrib.auth import get_user_model
 import pandas as pd
 
+User = get_user_model()
 
-# import models
-from .models import Category, Products, Inventory, Style, Price
-
-# import serializers
-from .serializers import AlphaBroderStyleSerializer, AlphaBroderCategorySerializer, AlphaBroderStyleWithProductsSerializer
+# import product models
+from products.models import Category, Products, Variations
 
 
 class Process_alp_inventory(viewsets.ModelViewSet):
     _skip_existing = True
+    seller = None
 
     # AB connection info
     ftp_host = 'ftp.appareldownload.com'
@@ -149,23 +146,21 @@ class Process_alp_inventory(viewsets.ModelViewSet):
                 category, created = Category.objects.get_or_create(category=row['Category'])
 
                 # Create or get Style
-                style, created = Style.objects.get_or_create(
-                    style_number=row['Style'],
+                product, created = Products.objects.get_or_create(
+                    product_number=row['Style'],
                     defaults={
+                        'seller': self.seller,
                         'short_description': row['Short Description'],
-                        'mill_number': row['Mill #'],
-                        'mill_name': row['Mill Name'],
+                        'brand_name': row['Mill Name'],
                         'category': category,
-                        'markup_code': row['Markup Code'],
                         'full_feature_description': row['Full Feature Description'],
                     }
                 )
 
                 # Create Product
-                product_details = {
-                    'is_new': row['NEW'] == 'NEW',
+                variation_details = {
                     'item_number': row['Item Number'],
-                    'style_number': style,
+                    'product_number': product,
                     'color_name': row['Color Name'],
                     'color_group_code': row['Color Group Code'],
                     'color_code': row['Color Code'],
@@ -187,10 +182,10 @@ class Process_alp_inventory(viewsets.ModelViewSet):
                     'mktg_color_hex_code': row['Mktg Color Hex Code'],
                 }
                 # Use get_or_create for Products
-                product, created = Products.objects.get_or_create(item_number=row['Item Number'], defaults=product_details)
+                variation, created = Variations.objects.get_or_create(item_number=row['Item Number'], defaults=variation_details)
 
                 if not created and not self._skip_existing:
-                    Products.objects.filter(item_number=row['Item Number']).update(**product_details)
+                    Variations.objects.filter(item_number=row['Item Number']).update(**variation_details)
                     self.debug(f"Updated existing product with Item Number: {row['Item Number']}")
                 elif not created:
                     self.debug(f"Skipped existing product with Item Number: {row['Item Number']}")
@@ -224,34 +219,17 @@ class Process_alp_inventory(viewsets.ModelViewSet):
 
             # Check if the item number is in the product list
             try:
-                product = Products.objects.get(item_number=item_number, gtin=gtin_number)
-            except Products.DoesNotExist:
+                variation = Variations.objects.get(item_number=item_number, gtin=gtin_number)
+            except Variations.DoesNotExist:
                 self.debug(f"Product not found for Item Number: {item_number} and GTIN Number: {gtin_number}")
                 continue  # Skip to the next iteration if the product doesn't exist
 
-            product_details = {
-                'gtin_number': gtin_number,
-                'mill_style_number': row['Mill Style Number'],
-                'cc': row['CC'],
-                'cn': row['CN'],
-                'fo': row['FO'],
-                'gd': row['GD'],
-                'kc': row['KC'],
-                'ma': row['MA'],
-                'ph': row['PH'],
-                'td': row['TD'],
-                'pz': row['PZ'],
-                'bz': row['BZ'],
-                'fz': row['FZ'],
-                'px': row['PX'],
-                'fx': row['FX'],
-                'bx': row['BX'],
-                'gx': row['GX'],
-                'drop_ship': row['DROP SHIP'] if not pd.isna(row['DROP SHIP']) else 0,
-            }
+            quantity_sum = sum(
+                int(row.get(field, 0)) for field in ['CC', 'CN', 'FO', 'GD', 'KC', 'MA', 'PH', 'TD', 'PZ', 'BZ', 'FZ', 'PX', 'FX', 'BX', 'GX']
+            )
 
-            # Update or create the inventory details using the related product instance
-            Inventory.objects.update_or_create(item_number=product, defaults=product_details)
+            variation.quantity = quantity_sum
+            variation.save()
 
             self.debug(f"Updated inventory details for Item Number: {item_number} and GTIN Number: {gtin_number}")
 
@@ -278,8 +256,8 @@ class Process_alp_inventory(viewsets.ModelViewSet):
 
             # Check if the item number is in the product list
             try:
-                product = Products.objects.get(item_number=item_number, gtin=gtin_number)
-            except Products.DoesNotExist:
+                variation = Variations.objects.get(item_number=item_number, gtin=gtin_number)
+            except Variations.DoesNotExist:
                 self.debug(f"Product not found for Item Number: {item_number} and GTIN Number: {gtin_number}")
                 continue  # Skip to the next iteration if the product doesn't exist
 
@@ -290,16 +268,12 @@ class Process_alp_inventory(viewsets.ModelViewSet):
                 # Convert the cleaned numeric value to a Decimal
                 return Decimal(numeric_value) if numeric_value else None
 
-            price_details = {
-                'gtin_number': gtin_number,
-                'price_per_piece': clean_numeric(row['Piece']),
-                'price_per_dozen': clean_numeric(row['Dozen']),
-                'price_per_case': clean_numeric(row['Case']),
-                'retail_price': clean_numeric(row['Retail']),
-            }
-
             # Update the product details
-            Price.objects.update_or_create(item_number=product, defaults=price_details)
+            variation.price_per_piece = clean_numeric(row['Piece'])
+            variation.price_per_dozen = clean_numeric(row['Dozen'])
+            variation.price_per_case = clean_numeric(row['Case'])
+            variation.retail_price = clean_numeric(row['Retail'])
+            variation.save()
             self.debug(f"Updated Pricing details for Item Number: {item_number} and GTIN Number: {gtin_number}")
                              
                 
@@ -309,24 +283,21 @@ class Process_alp_inventory(viewsets.ModelViewSet):
     def handle(self):
         """Handle GET requests to start downloading, processing,
           and updating the model."""
-        self.clean_directory(os.path.join('files', 'alpb'))
-        self.prepare_products()
-        self.update_products(self.product_file)
-        self.prepare_inventory()
+        try:
+            self.seller = User.objects.get(username='alpb')
+        except User.DoesNotExist:
+            self.debug("Alphabroder user (alpb), not present.")
+            return False
+        
+        #self.clean_directory(os.path.join('files', 'alpb'))
+        #self.prepare_products()
+        #self.update_products(self.product_file)
+        #self.prepare_inventory()
         self.update_inventory(self.inventory_file)
-        self.prepare_pricing()
-        self.update_pricing(self.price_file)
+        #self.prepare_pricing()
+        #self.update_pricing(self.price_file)
         self.debug("Finished updating products and inventory and Pricing.")
-
-
-#####################################################
-#                   Helper Classes                  #
-#####################################################
-# pagination
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 100
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
+        return True
 
 #####################################################
 #                   API Controllers                 #
@@ -335,61 +306,14 @@ class UpdateDataView(APIView):
     def get(self, request, *args, **kwargs):
         try:
             process_alp_inventory = Process_alp_inventory()
-            process_alp_inventory.handle()
-            return Response({"message": "Data updated successfully."},
-                            status=status.HTTP_200_OK)
+            resp = process_alp_inventory.handle()
+            if (resp):
+                return Response({"message": "Data updated successfully."},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Alphabroder user (alpb), not present."},
+                                status=status.HTTP_401_UNAUTHORIZED)
+
         except Exception as e:
             return Response({"error": str(e)}, 
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-
-class StyleListView(ListAPIView):
-    serializer_class = AlphaBroderStyleSerializer
-    pagination_class = StandardResultsSetPagination
-
-    def get_queryset(self):
-        category_param = self.request.query_params.get('category', None)
-
-        if category_param:
-            if not Category.objects.filter(category__iexact=category_param).exists():
-                raise Http404("Category does not exist")
-
-            # Filter styles by category
-            styles = Style.objects.filter(category__category__iexact=category_param)
-        else:
-            styles = Style.objects.all()
-
-        return styles
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-
-        # Paginate the queryset
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_404_NOT_FOUND if not queryset.exists() else status.HTTP_200_OK)
-
-
-class CategoryListView(ListAPIView):
-    queryset = Category.objects.all()
-    serializer_class = AlphaBroderCategorySerializer
-    pagination_class = StandardResultsSetPagination
-
-
-class StyleWithProductsView(RetrieveAPIView):
-    queryset = Style.objects.all()
-    serializer_class = AlphaBroderStyleWithProductsSerializer
-    lookup_field = 'style_number'  # Use 'style_number' as the lookup field
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['style_number'] = self.kwargs['style_number']
-        return context
-
-    def get_object(self):
-        style_number = self.kwargs['style_number']
-        return Style.objects.get(style_number=style_number)

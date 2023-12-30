@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from products.models import Product
+from products.models import Products
 from users.models import Address
 
 User = get_user_model()
@@ -54,7 +54,7 @@ class OrderItem(models.Model):
         Order, related_name="order_items", on_delete=models.CASCADE
     )
     product = models.ForeignKey(
-        Product, related_name="product_orders", on_delete=models.CASCADE
+        Products, related_name="product_orders", on_delete=models.CASCADE
     )
     quantity = models.IntegerField()
 

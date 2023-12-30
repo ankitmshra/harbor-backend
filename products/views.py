@@ -1,43 +1,78 @@
-from rest_framework import permissions, viewsets
+from django.http import Http404
+from rest_framework import permissions
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import status
 
-from products.models import Product, ProductCategory
-from products.permissions import IsSellerOrAdmin
+from products.models import Products, Category
 from products.serializers import (
     ProductCategoryReadSerializer,
     ProductReadSerializer,
-    ProductWriteSerializer,
+    VerboseProductReadSerializer
 )
 
+#####################################################
+#                   Helper Classes                  #
+#####################################################
+# pagination
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
-class ProductCategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    List and Retrieve product categories
-    """
 
-    queryset = ProductCategory.objects.all()
-    serializer_class = ProductCategoryReadSerializer
+#####################################################
+#                   API Controllers                 #
+#####################################################
+class ProductsListView(ListAPIView):
+    serializer_class = ProductReadSerializer
+    pagination_class = StandardResultsSetPagination
     permission_classes = (permissions.AllowAny,)
 
+    def get_queryset(self):
+        category_param = self.request.query_params.get('category', None)
 
-class ProductViewSet(viewsets.ModelViewSet):
-    """
-    CRUD products
-    """
+        if category_param:
+            if not Category.objects.filter(category__iexact=category_param).exists():
+                raise Http404("Category does not exist")
 
-    queryset = Product.objects.all()
-
-    def get_serializer_class(self):
-        if self.action in ("create", "update", "partial_update", "destroy"):
-            return ProductWriteSerializer
-
-        return ProductReadSerializer
-
-    def get_permissions(self):
-        if self.action in ("create",):
-            self.permission_classes = (permissions.IsAuthenticated,)
-        elif self.action in ("update", "partial_update", "destroy"):
-            self.permission_classes = (IsSellerOrAdmin,)
+            # Filter styles by category
+            products = Products.objects.filter(category__category__iexact=category_param)
         else:
-            self.permission_classes = (permissions.AllowAny,)
+            products = Products.objects.all()
 
-        return super().get_permissions()
+        return products
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        # Paginate the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_404_NOT_FOUND if not queryset.exists() else status.HTTP_200_OK)
+
+
+class CategoryListView(ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = ProductCategoryReadSerializer
+    pagination_class = StandardResultsSetPagination
+
+
+class VerboseProductsView(RetrieveAPIView):
+    queryset = Products.objects.all()
+    serializer_class = VerboseProductReadSerializer
+    lookup_field = 'product_number'
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['product_number'] = self.kwargs['product_number']
+        return context
+
+    def get_object(self):
+        product_number = self.kwargs['product_number']
+        return Products.objects.get(product_number=product_number)
