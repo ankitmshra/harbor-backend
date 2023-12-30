@@ -289,13 +289,13 @@ class Process_alp_inventory(viewsets.ModelViewSet):
             self.debug("Alphabroder user (alpb), not present.")
             return False
         
-        #self.clean_directory(os.path.join('files', 'alpb'))
-        #self.prepare_products()
-        #self.update_products(self.product_file)
-        #self.prepare_inventory()
+        self.clean_directory(os.path.join('files', 'alpb'))
+        self.prepare_products()
+        self.update_products(self.product_file)
+        self.prepare_inventory()
         self.update_inventory(self.inventory_file)
-        #self.prepare_pricing()
-        #self.update_pricing(self.price_file)
+        self.prepare_pricing()
+        self.update_pricing(self.price_file)
         self.debug("Finished updating products and inventory and Pricing.")
         return True
 
