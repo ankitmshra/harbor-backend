@@ -56,11 +56,7 @@ class Products(models.Model):
 
 
 class Variations(models.Model):
-    variation_id = models.BigAutoField(auto_created=True,
-                                     primary_key=True,
-                                     serialize=False,
-                                     verbose_name='Variation ID')
-    item_number = models.CharField(max_length=255, unique=True)
+    item_number = models.CharField(max_length=255, unique=True, primary_key=True)
     product_number = models.ForeignKey(
         Products,
         on_delete=models.CASCADE,
