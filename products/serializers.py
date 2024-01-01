@@ -40,10 +40,9 @@ class VariationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Variations
         fields = [
-            'item_number', 'product_number', 'color_name', 'color_group_code', 'color_code', 'hex_code',
-            'size_group', 'size_code', 'size', 'case_qty', 'weight', 'front_image', 'back_image', 'side_image',
-            'gtin', 'launch_date', 'pms_color', 'size_sort_order', 'mktg_color_number', 'mktg_color_name',
-            'mktg_color_hex_code', 'created_at', 'updated_at', 'quantity', 'price_per_piece', 'price_per_dozen', 
+            'item_number', 'product_number', 'color_name', 'hex_code',
+            'size', 'case_qty', 'weight', 'front_image', 'back_image', 'side_image',
+            'gtin', 'created_at', 'updated_at', 'quantity', 'price_per_piece', 'price_per_dozen', 
             'price_per_case', 'retail_price',
         ]
     

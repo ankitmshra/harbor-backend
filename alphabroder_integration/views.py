@@ -162,11 +162,7 @@ class Process_alp_inventory(viewsets.ModelViewSet):
                     'item_number': row['Item Number'],
                     'product_number': product,
                     'color_name': row['Color Name'],
-                    'color_group_code': row['Color Group Code'],
-                    'color_code': row['Color Code'],
                     'hex_code': row['Hex Code'],
-                    'size_group': row['Size Group'],
-                    'size_code': row['Size Code'],
                     'size': row['Size'],
                     'case_qty': row['Case Qty'],
                     'weight': row['Weight'],
@@ -174,12 +170,6 @@ class Process_alp_inventory(viewsets.ModelViewSet):
                     'back_image': row['Back Image Hi Res URL'].replace(self.image_url, ''),
                     'side_image': row['Side Image Hi Res URL'].replace(self.image_url, ''),
                     'gtin': row['Gtin'],
-                    'launch_date': row['Launch Date'],
-                    'pms_color': row['PMS Color'],
-                    'size_sort_order': row['Size Sort Order'],
-                    'mktg_color_number': row['Mktg Color Number'],
-                    'mktg_color_name': row['Mktg Color Name'],
-                    'mktg_color_hex_code': row['Mktg Color Hex Code'],
                 }
                 # Use get_or_create for Products
                 variation, created = Variations.objects.get_or_create(item_number=row['Item Number'], defaults=variation_details)

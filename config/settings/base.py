@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     # "sanmar_integration",
     "alphabroder_integration",
     # "authorizenet_intg",
-    "shipping",
+    # "shipping",
 ]
 
 MIDDLEWARE = [

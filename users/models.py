@@ -89,21 +89,6 @@ class PhoneNumber(models.Model):
         return self.is_verified
 
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to="avatar", blank=True)
-    bio = models.CharField(max_length=200, blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ("-created_at",)
-
-    def __str__(self):
-        return self.user.get_full_name()
-
-
 class Address(models.Model):
     # Address options
     BILLING = "B"

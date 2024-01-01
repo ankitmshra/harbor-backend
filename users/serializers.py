@@ -173,22 +173,7 @@ class VerifyPhoneNumberSerialzier(serializers.Serializer):
         queryset.check_verification(security_code=otp)
 
         return validated_data
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    """
-    Serializer class to serialize the user Profile model
-    """
-
-    class Meta:
-        model = Profile
-        fields = (
-            "avatar",
-            "bio",
-            "created_at",
-            "updated_at",
-        )
-
+    
 
 class AddressReadOnlySerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
@@ -206,8 +191,6 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer class to seralize User model
     """
-
-    profile = ProfileSerializer(read_only=True)
     phone_number = PhoneNumberField(source="phone", read_only=True)
     addresses = AddressReadOnlySerializer(read_only=True, many=True)
 
@@ -220,7 +203,6 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "is_active",
-            "profile",
             "addresses",
         )
 
