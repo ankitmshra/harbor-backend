@@ -13,12 +13,11 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from users.models import Address, PhoneNumber, Profile
+from users.models import Address, PhoneNumber
 from users.permissions import IsUserAddressOwner, IsUserProfileOwner
 from users.serializers import (
     AddressReadOnlySerializer,
     PhoneNumberSerializer,
-    ProfileSerializer,
     UserLoginSerializer,
     UserRegistrationSerializer,
     UserSerializer,

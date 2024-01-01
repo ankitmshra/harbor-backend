@@ -12,7 +12,7 @@ from .exceptions import (
     AccountNotRegisteredException,
     InvalidCredentialsException,
 )
-from .models import Address, PhoneNumber, Profile
+from .models import Address, PhoneNumber
 
 User = get_user_model()
 
