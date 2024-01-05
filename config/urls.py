@@ -18,7 +18,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/user/", include("users.urls", namespace="users")),
     path("api/products/", include("products.urls", namespace="products")),
-    path("api/user/orders/", include("orders.urls", namespace="orders")),
+    #path("api/user/orders/", include("orders.urls", namespace="orders")),
     path("api/user/payments/", include("payment.urls", namespace="payment")),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path(
@@ -45,7 +45,8 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="rest_logout"),
 
     # Include the Process_alp_inventory view
-    path("api/alp/", include("alphabroder_integration.urls", namespace="alphabroder_integration")),
+    path("api/alp/", include("alphabroder_integration.urls", namespace="alphabroder_integration")),\
+    path('api/user/cart/', include('cart.urls' , namespace='cart')),
 ]
 
 # Media Assets

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # Local apps
     "users",
     "products",
+    "cart",
     "orders",
     "payment",
     # "sanmar_integration",
