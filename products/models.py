@@ -63,7 +63,9 @@ class Variations(models.Model):
         related_name='variations',
     )
     color_name = models.CharField(max_length=255)
+    color_code = models.CharField(max_length=255, null=True)
     hex_code = models.CharField(max_length=255)
+    size_code = models.CharField(max_length=255, null=True)
     size = models.CharField(max_length=255)
     case_qty = models.IntegerField()
     weight = models.CharField(max_length=255)
