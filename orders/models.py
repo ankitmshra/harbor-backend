@@ -53,8 +53,8 @@ class OrderItem(models.Model):
     order = models.ForeignKey(
         Order, related_name="order_items", on_delete=models.CASCADE
     )
-    items = models.ForeignKey(
-        Products, related_name="product_orders", on_delete=models.CASCADE
+    item = models.ForeignKey(
+        Variations, related_name="product_orders", on_delete=models.CASCADE
     )
     quantity = models.IntegerField()
 

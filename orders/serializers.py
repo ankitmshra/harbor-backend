@@ -18,7 +18,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "order",
-            "product",
+            "item",
             "quantity",
             "price",
             "cost",
@@ -29,28 +29,28 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def validate(self, validated_data):
         order_quantity = validated_data["quantity"]
-        product_quantity = validated_data["product"].quantity
+        item_quantity = validated_data["item"].quantity
 
         order_id = self.context["view"].kwargs.get("order_id")
-        product = validated_data["product"]
-        current_item = OrderItem.objects.filter(order__id=order_id, product=product)
+        item = validated_data["item"]
+        current_item = OrderItem.objects.filter(order__id=order_id, item=item)
 
-        if order_quantity > product_quantity:
+        if order_quantity > item_quantity:
             error = {"quantity": _("Ordered quantity is more than the stock.")}
             raise serializers.ValidationError(error)
 
         if not self.instance and current_item.count() > 0:
-            error = {"product": _("Product already exists in your order.")}
+            error = {"item": _("Item already exists in your order.")}
             raise serializers.ValidationError(error)
 
-        if self.context["request"].user == product.seller:
-            error = _("Adding your own product to your order is not allowed")
+        if self.context["request"].user == item.seller:
+            error = _("Adding your own item to your order is not allowed")
             raise PermissionDenied(error)
 
         return validated_data
 
     def get_price(self, obj):
-        return obj.product.price
+        return obj.item.price
 
     def get_cost(self, obj):
         return obj.cost
@@ -118,12 +118,12 @@ class OrderWriteSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         orders_data = validated_data.pop("order_items", None)
-        orders = list((instance.order_items).all())
+        orders = list((instance.order_item).all())
 
         if orders_data:
             for order_data in orders_data:
                 order = orders.pop(0)
-                order.product = order_data.get("product", order.product)
+                order.item = order_data.get("item", order.item)
                 order.quantity = order_data.get("quantity", order.quantity)
                 order.save()
 
